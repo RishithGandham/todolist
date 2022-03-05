@@ -50,6 +50,15 @@ public class TaskListService {
         return tlr.getById(id);
 
     }
+
+    public TaskList deleteTask(Long taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalStateException(String.format("could not find task with id: %", taskId)));
+        taskRepository.delete(task);
+        return task.getTaskList();
+
+
+    }
 //	public TaskList findSpecificListByAppUser(AppUser appUser, String name) {
 //		List<TaskList> list = alr.findByAppuser(appUser);
 //		for (TaskList l : list) {

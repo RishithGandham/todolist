@@ -28,17 +28,18 @@ public class TaskListController {
     private final TaskListService taskListService;
     private final TaskListRepository taskListRepository;
     private final SimpleDateFormat simpleDateFormat;
+    private final TaskRepository taskRepository;
 
     @GetMapping("/getlist/{id}")
     public ResponseEntity<?> getListByName(@PathVariable("id") Long id, Model model, Authentication auth) throws NumberFormatException, ListNotFoundException {
 
         if (!taskListRepository.existsById(id)) {
             MessageResponse messageResponse = new MessageResponse("The list that was requested was not found");
-            return new ResponseEntity<MessageResponse>(messageResponse, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(messageResponse, HttpStatus.NOT_FOUND);
         }
 
         MessageResponse messageResponse = new MessageResponse("The list that was requested was not found");
-        return new ResponseEntity<MessageResponse>(messageResponse, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(messageResponse, HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/getlists")
@@ -83,6 +84,19 @@ public class TaskListController {
         return new ResponseEntity<>(new AllListResponse(taskListService.findByAppUser((AppUserDetails) auth.getPrincipal())), HttpStatus.OK);
     }
 
+    @PostMapping("/deleteTodo")
+    public ResponseEntity<TaskList> deleteTask(@RequestParam("id") Long id, Authentication authentication) {
+        if (!taskRepository.existsById(id)) {
+            MessageResponse messageResponse = new MessageResponse("Task wasn't found, maybe refresh? ");
+            new ResponseEntity<>(messageResponse, HttpStatus.NOT_FOUND);
+        }
+        TaskList taskList = taskListService.deleteTask(id);
+        return new ResponseEntity<>(taskList, HttpStatus.OK);
+    }
+
+//    public ResponseEntity<TaskList> createTodo() {
+//        return new ResponseEntity<>();
+//    }
 
 
 }
