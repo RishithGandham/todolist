@@ -51,10 +51,10 @@ public class TaskListController {
     }
 
     @PostMapping(value = "/createlist")
-    public ResponseEntity<AllListResponse> createList(@RequestParam("name") String name,@RequestParam("desc") String desc, @RequestParam("date")  String date, Authentication auth) throws ParseException {
-        Date dueDate = simpleDateFormat.parse(date);
+    public ResponseEntity<AllListResponse> createList( @RequestBody CreateListRequest createListRequest, Authentication auth) throws ParseException {
+        Date dueDate = simpleDateFormat.parse(createListRequest.getDate());
         AppUserDetails appuser = (AppUserDetails) auth.getPrincipal();
-        TaskList list = taskListService.addList(name, appuser, dueDate, desc);
+        TaskList list = taskListService.addList(createListRequest.getName(), appuser, dueDate, createListRequest.getDescription());
         return new ResponseEntity<>(new AllListResponse(appuser.getListOfTaskLists()), HttpStatus.OK);
 
     }
@@ -83,13 +83,13 @@ public class TaskListController {
 
 
     @PostMapping("/editlist")
-    public ResponseEntity<?> editlist(@RequestParam("id") Long id, @RequestParam("name") String name,@RequestParam("desc") String desc, @RequestParam("date")  String date, Authentication auth ) throws ParseException, ListNotFoundException {
+    public ResponseEntity<?> editlist(@RequestBody EditListRequest editListRequest, Authentication auth ) throws ParseException, ListNotFoundException {
 
-        if (taskListService.findById(id).getAppUserDetails().getId() != ((AppUserDetails) auth.getPrincipal()).getId()) {
+        if (taskListService.findById(editListRequest.getId()).getAppUserDetails().getId() != ((AppUserDetails) auth.getPrincipal()).getId()) {
             return new ResponseEntity<MessageResponse>(new MessageResponse("you do not have permision to edit this list"), HttpStatus.UNAUTHORIZED);
         }
-        Date dueDate = simpleDateFormat.parse(date);
-        taskListService.editList(name, (AppUserDetails) auth.getPrincipal(), dueDate, desc, id);
+        Date dueDate = simpleDateFormat.parse(editListRequest.getDate());
+        taskListService.editList(editListRequest.getName(), (AppUserDetails) auth.getPrincipal(), dueDate, editListRequest.getDescription(), editListRequest.getId());
         return new ResponseEntity<>(new AllListResponse(taskListService.findByAppUser((AppUserDetails) auth.getPrincipal())), HttpStatus.OK);
     }
 
