@@ -1,6 +1,7 @@
 package com.webapp.todolist.task;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.webapp.todolist.appuser.AppUserDetails;
 import lombok.*;
 
@@ -21,6 +22,7 @@ public class TaskList {
     public String name;
     public Date dueDate;
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "taskList", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer"})
     public List<Task> taskList = new ArrayList<Task>();
     @Id
     @GeneratedValue(strategy = IDENTITY)

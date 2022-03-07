@@ -60,7 +60,12 @@ public class TaskListController {
     }
 
     @PostMapping(value = "/deletelist")
-    public ResponseEntity<MessageResponse> deleteList(@RequestParam("id") Long id, Authentication auth) throws NumberFormatException, ListNotFoundException {
+    public ResponseEntity<?> deleteList(@RequestParam("id") Long id, Authentication auth) throws NumberFormatException, ListNotFoundException {
+
+
+            if (taskListService.findById(id).getAppUserDetails().getId() != ((AppUserDetails) auth.getPrincipal()).getId()) {
+                return new ResponseEntity<MessageResponse>(new MessageResponse("you do not have permision to edit this list"), HttpStatus.UNAUTHORIZED);
+            }
 
             if (!taskListRepository.existsById(id)) {
                 MessageResponse messageResponse = new MessageResponse("List wasn't found, maybe refresh? ");
@@ -78,7 +83,11 @@ public class TaskListController {
 
 
     @PostMapping("/editlist")
-    public ResponseEntity<AllListResponse> editlist(@RequestParam("id") Long id, @RequestParam("name") String name,@RequestParam("desc") String desc, @RequestParam("date")  String date, Authentication auth ) throws ParseException, ListNotFoundException {
+    public ResponseEntity<?> editlist(@RequestParam("id") Long id, @RequestParam("name") String name,@RequestParam("desc") String desc, @RequestParam("date")  String date, Authentication auth ) throws ParseException, ListNotFoundException {
+
+        if (taskListService.findById(id).getAppUserDetails().getId() != ((AppUserDetails) auth.getPrincipal()).getId()) {
+            return new ResponseEntity<MessageResponse>(new MessageResponse("you do not have permision to edit this list"), HttpStatus.UNAUTHORIZED);
+        }
         Date dueDate = simpleDateFormat.parse(date);
         taskListService.editList(name, (AppUserDetails) auth.getPrincipal(), dueDate, desc, id);
         return new ResponseEntity<>(new AllListResponse(taskListService.findByAppUser((AppUserDetails) auth.getPrincipal())), HttpStatus.OK);
@@ -87,7 +96,7 @@ public class TaskListController {
     @PostMapping("/deleteTodo")
     public ResponseEntity<TaskList> deleteTask(@RequestParam("id") Long id, Authentication authentication) {
         if (!taskRepository.existsById(id)) {
-            MessageResponse messageResponse = new MessageResponse("Task wasn't found, maybe refresh? ");
+            MessageResponse messageResponse = new MessageResponse("Task wasn't found");
             new ResponseEntity<>(messageResponse, HttpStatus.NOT_FOUND);
         }
         TaskList taskList = taskListService.deleteTask(id);
