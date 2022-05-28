@@ -13,17 +13,17 @@ spring:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     generate-ddl: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true
     show-sql: true
 
   mail:
-    host: localhost
-    port: 1025
-    username: hello
-    password: hello
+    host: smtp.gmail.com
+    port: 587
+    username: todolist.app.2022@gmail.com
+    password: t0d0l!st
 
     properties:
       mail:

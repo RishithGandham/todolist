@@ -1,7 +1,10 @@
-package com.webapp.todolist.task;
+package com.webapp.todolist.tasklist;
 
 import com.webapp.todolist.appuser.AppUserDetails;
+import com.webapp.todolist.exceptions.ApiRequestException;
 import com.webapp.todolist.exceptions.ListNotFoundException;
+import com.webapp.todolist.tasklist.task.Task;
+import com.webapp.todolist.tasklist.task.TaskRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -47,18 +50,12 @@ public class TaskListService {
     }
 
     public TaskList findById(Long id) throws ListNotFoundException {
-        return tlr.getById(id);
+        return tlr.findTaskListById(id)
+                .orElseThrow(() -> new ApiRequestException("Task list with that ID could not be found"));
 
     }
 
-    public TaskList deleteTask(Long taskId) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalStateException(String.format("could not find task with id: %", taskId)));
-        taskRepository.delete(task);
-        return task.getTaskList();
 
-
-    }
 //	public TaskList findSpecificListByAppUser(AppUser appUser, String name) {
 //		List<TaskList> list = alr.findByAppuser(appUser);
 //		for (TaskList l : list) {

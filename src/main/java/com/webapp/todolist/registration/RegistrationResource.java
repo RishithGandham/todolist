@@ -19,13 +19,11 @@ public class RegistrationResource {
     private final JwtTokenUtil jwtTokenUtil;
 
     @PostMapping
-    public ResponseEntity<RegistrationResponse> register(@RequestBody RegistrationRequest request) {
-        System.out.println(request);
+    public ResponseEntity<?> register( @RequestBody RegistrationRequest request) {
+
         ConfirmationToken confirmationToken = registrationService.register(request);
-        final String jwt = jwtTokenUtil.generateToken(confirmationToken.getAppUserDetails());
-        RegistrationResponse registrationResponse =
-                new RegistrationResponse("You were registered, please see your email for a verification link, this link will expire in 15 minutes", jwt);
-        return new ResponseEntity<>(registrationResponse, HttpStatus.CREATED);
+
+        return new ResponseEntity<>(new MessageResponse("You have been registered, please look at your email for a confirmation link"), HttpStatus.CREATED);
     }
 
 

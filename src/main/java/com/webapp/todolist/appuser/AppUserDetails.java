@@ -1,12 +1,11 @@
 package com.webapp.todolist.appuser;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.webapp.todolist.task.TaskList;
+import com.webapp.todolist.tasklist.TaskList;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,7 +37,7 @@ public class AppUserDetails implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole apr;
     private Boolean locked = false;
-    private Boolean enabled = true;
+    private Boolean enabled = false;
 
 
     // List of task using foreign key in sql

@@ -10,6 +10,12 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Getter
 @Setter
-public class MessageResponse implements Serializable {
-    public String responseMessage;
+public class MessageResponse<E> {
+
+    private String responseMessage;
+    private E data;
+
+    public MessageResponse(String message) {
+        this.setResponseMessage(message);
+    }
 }

@@ -1,14 +1,16 @@
-package com.webapp.todolist.task;
+package com.webapp.todolist.tasklist;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+@AllArgsConstructor
 @Getter
 @Setter
-@AllArgsConstructor
-public class CreateListRequest {
+public class EditListRequest {
+    private Long id;
     private String name;
-    private String description;
     private String date;
+    private String description;
 }

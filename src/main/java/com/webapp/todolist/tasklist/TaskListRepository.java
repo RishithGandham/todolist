@@ -1,4 +1,4 @@
-package com.webapp.todolist.task;
+package com.webapp.todolist.tasklist;
 
 import com.webapp.todolist.appuser.AppUserDetails;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface TaskListRepository extends JpaRepository<TaskList, Long> {
 
 
-    TaskList getById(Long aLong);
+    Optional<TaskList> findTaskListById(Long aLong);
 
     Optional<TaskList> deleteListById(Long id);
 

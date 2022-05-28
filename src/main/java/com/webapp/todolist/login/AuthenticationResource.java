@@ -2,6 +2,7 @@ package com.webapp.todolist.login;
 
 import com.webapp.todolist.appuser.AppUserDetails;
 import com.webapp.todolist.appuser.AppUserDetailsService;
+import com.webapp.todolist.exceptions.ApiRequestException;
 import com.webapp.todolist.jwt.JwtTokenUtil;
 import com.webapp.todolist.messageresponse.MessageResponse;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v3/authresource")
 @AllArgsConstructor
@@ -31,7 +34,7 @@ public class AuthenticationResource {
     private final JwtTokenUtil jwtTokenUtil;
 
     @PostMapping("/authenticate")
-    public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+    public ResponseEntity<?> authenticate(@Valid  @RequestBody AuthenticationRequest authenticationRequest) throws Exception {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationRequest.getEmail(), authenticationRequest.getPassword())
@@ -42,7 +45,7 @@ public class AuthenticationResource {
             return new ResponseEntity<AuthenticationResponse>(new AuthenticationResponse(jwt), HttpStatus.OK);
         } catch (BadCredentialsException e) {
             e.printStackTrace();
-            return new ResponseEntity<MessageResponse>(new MessageResponse("Problem authenticating"), HttpStatus.FORBIDDEN);
+            throw new ApiRequestException("Bad credentials", HttpStatus.FORBIDDEN);
         }
     }
 

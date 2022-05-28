@@ -1,4 +1,4 @@
-package com.webapp.todolist.task;
+package com.webapp.todolist.tasklist;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

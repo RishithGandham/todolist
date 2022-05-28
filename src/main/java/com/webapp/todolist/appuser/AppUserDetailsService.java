@@ -1,9 +1,10 @@
 package com.webapp.todolist.appuser;
 
+import com.webapp.todolist.exceptions.ApiRequestException;
 import com.webapp.todolist.registration.token.ConfirmationToken;
 import com.webapp.todolist.registration.token.ConfirmationTokenService;
-import com.webapp.todolist.task.TaskListRepository;
-import com.webapp.todolist.task.TaskRepository;
+import com.webapp.todolist.tasklist.TaskListRepository;
+import com.webapp.todolist.tasklist.task.TaskRepository;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -42,7 +43,7 @@ public class AppUserDetailsService implements UserDetailsService {
     public ConfirmationToken signUpUser(AppUserDetails appUserDetails) {
 
         if (apr.findByEmail(appUserDetails.getEmail()).isPresent()) {
-            throw new IllegalStateException("email already taken");
+            throw new ApiRequestException("Email already taken");
         }
 
         appUserDetails.setPassword(bCryptPasswordEncoder.encode(appUserDetails.getPassword()));

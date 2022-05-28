@@ -1,21 +1,19 @@
-package com.webapp.todolist.task;
+package com.webapp.todolist.tasklist;
 
 import com.webapp.todolist.appuser.AppUserDetails;
+import com.webapp.todolist.exceptions.ApiRequestException;
 import com.webapp.todolist.exceptions.ListNotFoundException;
 import com.webapp.todolist.messageresponse.MessageResponse;
+import com.webapp.todolist.tasklist.task.TaskRepository;
 import lombok.AllArgsConstructor;
-import net.bytebuddy.build.Plugin;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.AbstractMap;
 import java.util.Date;
 import java.util.List;
 
@@ -31,15 +29,16 @@ public class TaskListController {
     private final TaskRepository taskRepository;
 
     @GetMapping("/getlist/{id}")
-    public ResponseEntity<?> getListByName(@PathVariable("id") Long id, Model model, Authentication auth) throws NumberFormatException, ListNotFoundException {
-
-        if (!taskListRepository.existsById(id)) {
-            MessageResponse messageResponse = new MessageResponse("The list that was requested was not found");
-            return new ResponseEntity<>(messageResponse, HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> getListById(@PathVariable("id") Long id, Model model, Authentication auth) throws NumberFormatException, ListNotFoundException {
+        AppUserDetails appUserDetails = (AppUserDetails) auth.getPrincipal();
+        TaskList taskList = taskListService.findById(id);
+        if (taskList.getAppUserDetails().getId() != appUserDetails.getId()) {
+            throw new ApiRequestException("You are not authorized to get this list");
         }
-
-        MessageResponse messageResponse = new MessageResponse("The list that was requested was not found");
-        return new ResponseEntity<>(messageResponse, HttpStatus.NOT_FOUND);
+        if (!taskListRepository.existsById(id)) {
+            throw new  ApiRequestException("The list that was requested was not found");
+        }
+        return new ResponseEntity<>(taskList, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/getlists")
@@ -83,29 +82,19 @@ public class TaskListController {
 
 
     @PostMapping("/editlist")
-    public ResponseEntity<?> editlist(@RequestBody EditListRequest editListRequest, Authentication auth ) throws ParseException, ListNotFoundException {
+    public ResponseEntity<?> editList(@RequestBody EditListRequest editListRequest, Authentication auth ) throws ParseException, ListNotFoundException {
 
         if (taskListService.findById(editListRequest.getId()).getAppUserDetails().getId() != ((AppUserDetails) auth.getPrincipal()).getId()) {
-            return new ResponseEntity<MessageResponse>(new MessageResponse("you do not have permision to edit this list"), HttpStatus.UNAUTHORIZED);
+            throw new ApiRequestException("you are not authorized to edit this list");
         }
         Date dueDate = simpleDateFormat.parse(editListRequest.getDate());
         taskListService.editList(editListRequest.getName(), (AppUserDetails) auth.getPrincipal(), dueDate, editListRequest.getDescription(), editListRequest.getId());
         return new ResponseEntity<>(new AllListResponse(taskListService.findByAppUser((AppUserDetails) auth.getPrincipal())), HttpStatus.OK);
     }
 
-    @PostMapping("/deleteTodo")
-    public ResponseEntity<TaskList> deleteTask(@RequestParam("id") Long id, Authentication authentication) {
-        if (!taskRepository.existsById(id)) {
-            MessageResponse messageResponse = new MessageResponse("Task wasn't found");
-            new ResponseEntity<>(messageResponse, HttpStatus.NOT_FOUND);
-        }
-        TaskList taskList = taskListService.deleteTask(id);
-        return new ResponseEntity<>(taskList, HttpStatus.OK);
-    }
 
-//    public ResponseEntity<TaskList> createTodo() {
-//        return new ResponseEntity<>();
-//    }
+
+
 
 
 }

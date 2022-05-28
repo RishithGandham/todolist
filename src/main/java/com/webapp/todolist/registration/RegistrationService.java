@@ -7,6 +7,8 @@ import com.webapp.todolist.appuser.UserRole;
 import com.webapp.todolist.email.EmailService;
 import com.webapp.todolist.email.EmailService;
 import com.webapp.todolist.email.EmailValidator;
+import com.webapp.todolist.exceptions.ApiException;
+import com.webapp.todolist.exceptions.ApiRequestException;
 import com.webapp.todolist.registration.token.ConfirmationToken;
 import com.webapp.todolist.registration.token.ConfirmationTokenRepository;
 import com.webapp.todolist.registration.token.ConfirmationTokenService;
@@ -32,13 +34,13 @@ public class RegistrationService {
         EmailValidator emailValidator = new EmailValidator();
 
         if (!emailValidator.test(req.getEmail()))
-            throw new IllegalStateException("NOT VALID EMAIL");
+            throw new ApiRequestException("Not a valid email");
 
         ConfirmationToken token = appUserDetailsService.signUpUser(new AppUserDetails(req.getFirstName(), req.getLastName(), req.getEmail(),
                 req.getPassword(), UserRole.USER));
 
 
-        String confirmationTokenLink = "http://localhost:8080/api/v1/tokenresource/confirmtoken?token=" + token.getToken();
+        String confirmationTokenLink = "http://localhost:3000/#/confirm/" + token.getToken();
 
         sender.send(req.getEmail(), this.buildEmail(req.getFirstName(), confirmationTokenLink));
         System.out.println(token);
@@ -47,23 +49,23 @@ public class RegistrationService {
     }
 
     @Transactional
-    public String confirmToken(String token) throws UserPrincipalNotFoundException {
+    public Boolean confirmToken(String token) throws UserPrincipalNotFoundException {
 
 
-        ConfirmationToken confirmationToken = confirmationTokenService.getToken(token)
-                .orElseThrow(() -> new IllegalStateException("token not found"));
+        ConfirmationToken confirmationToken = confirmationTokenService.getToken(token);
+
 
         if (confirmationToken.getConfirmedAt() != null) {
-            throw new IllegalStateException("email already confirmed");
+            throw new ApiRequestException("Email already confirmed");
         }
 
         LocalDateTime expiredAt = confirmationToken.getExpiresAt();
 
         if (expiredAt.isBefore(LocalDateTime.now())) {
-            confirmationToken.setExpiresAt(confirmationToken.getExpiresAt().plusMinutes(15));
-            confirmationTokenRepository.save(confirmationToken);
-            resend(confirmationToken.getAppUserDetails().getEmail(), confirmationToken.getToken());
-            throw new IllegalStateException("token expired");
+            userRepository.deleteById(confirmationToken.getAppUserDetails().getId());
+            throw new ApiRequestException("token expired, the user was deleted, please try registering again");
+
+
 
         }
 
@@ -71,21 +73,24 @@ public class RegistrationService {
         appUserDetailsService.enableAppUser(confirmationToken.getAppUserDetails().getEmail());
 
 
-        return "home";
+        return true;
     }
 
-    public void resend(String email, String token) throws UserPrincipalNotFoundException {
+    public void resend(String email) throws UserPrincipalNotFoundException {
 
 
-        AppUserDetails user = userRepository.findByEmail(email).orElseThrow(() -> new UserPrincipalNotFoundException("userName"));
+        AppUserDetails user = userRepository.findByEmail(email).orElseThrow(() -> new ApiRequestException("Username not found"));
 
 
-        token = token.replaceAll("\\s", "");
-
-        System.out.println(token);
+        if (user.isEnabled()) throw new ApiRequestException("User is already enabled");
 
 
-        sender.send(email, this.buildEmail(user.getFirstName(), "http://localhost:8080/api/v1/tokenresource/confirmtoken?token="  + token));
+        ConfirmationToken token = confirmationTokenRepository.findByAppUserDetailsId(user.getId())
+                .orElseThrow(() -> new ApiRequestException("Error fetching token"));
+
+
+        sender.send(email, this.buildEmail(user.getFirstName(), "http://localhost:3000/#/confirm/"  + token));
+        return;
     }
 
 

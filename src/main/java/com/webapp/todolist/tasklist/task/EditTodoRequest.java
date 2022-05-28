@@ -1,4 +1,4 @@
-package com.webapp.todolist.task;
+package com.webapp.todolist.tasklist.task;
 
 
 import lombok.AllArgsConstructor;
@@ -8,9 +8,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class EditListRequest {
-    private Long id;
+public class EditTodoRequest {
     private String name;
-    private String date;
-    private String description;
+    private String desc;
+    private Long id;
 }

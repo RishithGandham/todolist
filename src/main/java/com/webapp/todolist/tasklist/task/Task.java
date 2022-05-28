@@ -1,7 +1,7 @@
-package com.webapp.todolist.task;
+package com.webapp.todolist.tasklist.task;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.webapp.todolist.tasklist.TaskList;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

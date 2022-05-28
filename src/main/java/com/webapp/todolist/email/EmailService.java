@@ -1,6 +1,7 @@
 package com.webapp.todolist.email;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -12,7 +13,7 @@ import javax.mail.internet.MimeMessage;
 @AllArgsConstructor
 public class EmailService  {
 
-
+    @Autowired
     private final JavaMailSender mailSender;
 
 
@@ -26,12 +27,12 @@ public class EmailService  {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
             helper.setText(email, true);
             helper.setTo(to);
-            helper.setSubject("AssignmentChecker -- Confirm Your Email!");
-            helper.setFrom("AssignmentChecker@gmail.com");
+            helper.setSubject("Todolist -- Confirm Your Email!");
+            helper.setFrom("rishith.gandham@gmail.com");
             mailSender.send(mimeMessage);
 
         } catch (Exception e) {
-
+            System.out.println(e.getMessage());
         }
 
     }

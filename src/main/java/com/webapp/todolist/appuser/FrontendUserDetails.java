@@ -1,7 +1,7 @@
 package com.webapp.todolist.appuser;
 
 
-import com.webapp.todolist.task.TaskList;
+import com.webapp.todolist.tasklist.TaskList;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

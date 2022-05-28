@@ -54,5 +54,8 @@ public class ConfirmationToken {
 
     }
 
-
+    @Override
+    public String toString() {
+        return this.getToken();
+    }
 }

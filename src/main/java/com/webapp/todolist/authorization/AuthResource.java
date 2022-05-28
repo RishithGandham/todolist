@@ -2,6 +2,7 @@ package com.webapp.todolist.authorization;
 
 import com.webapp.todolist.appuser.AppUserDetails;
 import com.webapp.todolist.appuser.AppUserDetailsService;
+import com.webapp.todolist.exceptions.ApiRequestException;
 import com.webapp.todolist.jwt.JwtTokenUtil;
 import io.jsonwebtoken.JwtException;
 import lombok.AllArgsConstructor;
@@ -39,8 +40,7 @@ public class AuthResource {
             return new ResponseEntity<>(isValid, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            isValid = false;
-            return new ResponseEntity<>(false, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
         }
 
     }

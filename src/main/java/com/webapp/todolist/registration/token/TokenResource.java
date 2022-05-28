@@ -1,15 +1,16 @@
 package com.webapp.todolist.registration.token;
 
+import com.webapp.todolist.exceptions.ApiRequestException;
+import com.webapp.todolist.jwt.JwtTokenUtil;
+import com.webapp.todolist.messageresponse.MessageResponse;
 import com.webapp.todolist.registration.RegistrationService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+//import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
 
 import java.nio.file.attribute.UserPrincipalNotFoundException;
 
@@ -20,20 +21,33 @@ import java.nio.file.attribute.UserPrincipalNotFoundException;
 public class TokenResource {
 
     private final RegistrationService registrationService;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final ConfirmationTokenRepository confirmationTokenRepository;
+    private final ConfirmationTokenService confirmationTokenService;
 
-    @GetMapping(path = "/sendemailagain")
-    public ResponseEntity<String> sendEmailAgain(@RequestParam("token") String token, @RequestParam("email") String email, Model model)
+    @PostMapping(path = "/resend")
+    public ResponseEntity<MessageResponse> sendEmailAgain(@RequestBody ResendRequest email)
             throws UserPrincipalNotFoundException {
-        registrationService.resend(email, token);
+        registrationService.resend(email.getEmail());
 
 
-        return new ResponseEntity<String>("email was sent again", HttpStatus.OK);
+        return new ResponseEntity<>(new MessageResponse("email was sent again"), HttpStatus.OK);
     }
 
-    @GetMapping(path = "/confirmtoken")
-    public void confirmToken(@RequestParam("token") String token)
+    @PostMapping(path = "/confirmtoken")
+    public ResponseEntity<MessageResponse> confirmToken(@RequestBody ConfirmRequest confirmRequest)
             throws UserPrincipalNotFoundException {
-        registrationService.confirmToken(token);
+        try {
+            ConfirmationToken confirmationToken = confirmationTokenService.getToken(confirmRequest.getToken());
+            final String jwt = jwtTokenUtil.generateToken(confirmationToken.getAppUserDetails());
+
+            Boolean confirmed = registrationService.confirmToken(confirmRequest.getToken());
+            return new ResponseEntity<>(new MessageResponse<>("Confirmed", new ConfirmResponse(confirmed, jwt)), HttpStatus.OK);
+        } catch (ApiRequestException e) {
+            throw new ApiRequestException(e.getMessage());
+        }
+
+
 
 
     }

@@ -56,25 +56,25 @@ public class ApplicationConfig implements WebMvcConfigurer {
 
 
     // i d k what this does
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(localeChangeInterceptor());
-    }
-
-    // i d k what this does
-    @Bean
-    public SessionLocaleResolver localeResolver() {
-        SessionLocaleResolver slr = new SessionLocaleResolver();
-        slr.setDefaultLocale(Locale.US);
-        return slr;
-    }
-
-    // i d k what this does
-    @Bean
-    public LocaleChangeInterceptor localeChangeInterceptor() {
-        LocaleChangeInterceptor lci = new LocaleChangeInterceptor();
-        lci.setParamName("lang");
-        return lci;
-    }
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(localeChangeInterceptor());
+//    }
+//
+//    // i d k what this does
+//    @Bean
+//    public SessionLocaleResolver localeResolver() {
+//        SessionLocaleResolver slr = new SessionLocaleResolver();
+//        slr.setDefaultLocale(Locale.US);
+//        return slr;
+//    }
+//
+//    // i d k what this does
+//    @Bean
+//    public LocaleChangeInterceptor localeChangeInterceptor() {
+//        LocaleChangeInterceptor lci = new LocaleChangeInterceptor();
+//        lci.setParamName("lang");
+//        return lci;
+//    }
 
 }

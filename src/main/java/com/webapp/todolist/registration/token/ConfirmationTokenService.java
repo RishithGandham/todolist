@@ -1,5 +1,6 @@
 package com.webapp.todolist.registration.token;
 
+import com.webapp.todolist.exceptions.ApiRequestException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +16,9 @@ public class ConfirmationTokenService {
         confirmationTokenRepository.save(token);
     }
 
-    public Optional<ConfirmationToken> getToken(String token) {
-        return confirmationTokenRepository.findByToken(token);
+    public ConfirmationToken getToken(String token) {
+        return confirmationTokenRepository.findByToken(token)
+                .orElseThrow(() -> new ApiRequestException("Token not found"));
     }
 
     public int setConfirmedAt(String token) {
