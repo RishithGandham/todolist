@@ -4,7 +4,10 @@ import com.webapp.todolist.appuser.AppUserDetails;
 import com.webapp.todolist.exceptions.ApiRequestException;
 import com.webapp.todolist.exceptions.ListNotFoundException;
 import com.webapp.todolist.messageresponse.MessageResponse;
+import com.webapp.todolist.tasklist.task.GetListRequest;
+import com.webapp.todolist.tasklist.task.Task;
 import com.webapp.todolist.tasklist.task.TaskRepository;
+import com.webapp.todolist.tasklist.task.TaskService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +30,9 @@ public class TaskListController {
     private final TaskListRepository taskListRepository;
     private final SimpleDateFormat simpleDateFormat;
     private final TaskRepository taskRepository;
+    private final TaskService taskService;
 
-    @GetMapping("/getlist/{id}")
+    @GetMapping(value = "/getlist/{id}")
     public ResponseEntity<?> getListById(@PathVariable("id") Long id, Model model, Authentication auth) throws NumberFormatException, ListNotFoundException {
         AppUserDetails appUserDetails = (AppUserDetails) auth.getPrincipal();
         TaskList taskList = taskListService.findById(id);
@@ -54,42 +58,37 @@ public class TaskListController {
         Date dueDate = simpleDateFormat.parse(createListRequest.getDate());
         AppUserDetails appuser = (AppUserDetails) auth.getPrincipal();
         TaskList list = taskListService.addList(createListRequest.getName(), appuser, dueDate, createListRequest.getDescription());
-        return new ResponseEntity<>(new AllListResponse(appuser.getListOfTaskLists()), HttpStatus.OK);
+        return new ResponseEntity<>(new AllListResponse(list.getAppUserDetails().getListOfTaskLists()), HttpStatus.OK);
 
     }
 
     @PostMapping(value = "/deletelist")
     public ResponseEntity<?> deleteList(@RequestParam("id") Long id, Authentication auth) throws NumberFormatException, ListNotFoundException {
+        TaskList tasklist = taskListService.findById(id);
+        if (tasklist.getAppUserDetails().getId() != ((AppUserDetails) auth.getPrincipal()).getId()) {
+                throw new ApiRequestException("dont have permission to edit this list");
+        }
+        if (!taskListRepository.existsById(id)) {
+            throw new ApiRequestException("Task not found");
+        }
+        if (!tasklist.taskList.isEmpty()) for  (Task task : tasklist.taskList) taskService.deleteTask(task.getId());
 
-
-            if (taskListService.findById(id).getAppUserDetails().getId() != ((AppUserDetails) auth.getPrincipal()).getId()) {
-                return new ResponseEntity<MessageResponse>(new MessageResponse("you do not have permision to edit this list"), HttpStatus.UNAUTHORIZED);
-            }
-
-            if (!taskListRepository.existsById(id)) {
-                MessageResponse messageResponse = new MessageResponse("List wasn't found, maybe refresh? ");
-                new ResponseEntity<MessageResponse>(messageResponse, HttpStatus.NOT_FOUND);
-
-            }
-
-            AppUserDetails appUserDetails = (AppUserDetails) auth.getPrincipal();
-            taskListService.deleteList(id);
-            MessageResponse messageResponse = new MessageResponse("List Deleted");
-            return new ResponseEntity<>(messageResponse, HttpStatus.OK);
-
-
+        AppUserDetails appUserDetails = (AppUserDetails) auth.getPrincipal();
+        taskListService.deleteList(id);
+        MessageResponse messageResponse = new MessageResponse("List Deleted");
+        return new ResponseEntity<>(messageResponse, HttpStatus.OK);
     }
 
 
     @PostMapping("/editlist")
-    public ResponseEntity<?> editList(@RequestBody EditListRequest editListRequest, Authentication auth ) throws ParseException, ListNotFoundException {
+    public ResponseEntity<MessageResponse<TaskList>> editList(@RequestBody EditListRequest editListRequest, Authentication auth ) throws ParseException, ListNotFoundException {
 
         if (taskListService.findById(editListRequest.getId()).getAppUserDetails().getId() != ((AppUserDetails) auth.getPrincipal()).getId()) {
             throw new ApiRequestException("you are not authorized to edit this list");
         }
         Date dueDate = simpleDateFormat.parse(editListRequest.getDate());
-        taskListService.editList(editListRequest.getName(), (AppUserDetails) auth.getPrincipal(), dueDate, editListRequest.getDescription(), editListRequest.getId());
-        return new ResponseEntity<>(new AllListResponse(taskListService.findByAppUser((AppUserDetails) auth.getPrincipal())), HttpStatus.OK);
+        TaskList edited = taskListService.editList(editListRequest.getName(), (AppUserDetails) auth.getPrincipal(), dueDate, editListRequest.getDescription(), editListRequest.getId());
+        return new ResponseEntity<>(new MessageResponse<>("Edited List", edited), HttpStatus.OK);
     }
 
 

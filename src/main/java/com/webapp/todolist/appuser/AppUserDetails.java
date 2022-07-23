@@ -40,7 +40,6 @@ public class AppUserDetails implements UserDetails {
     private Boolean enabled = false;
 
 
-    // List of task using foreign key in sql
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "appUserDetails", cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"hibernateLazyInitializer"})
     private List<TaskList> listOfTaskLists = new ArrayList<TaskList>();

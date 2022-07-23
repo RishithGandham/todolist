@@ -3,6 +3,8 @@ package com.webapp.todolist.tasklist.task;
 import com.webapp.todolist.tasklist.TaskList;
 import com.webapp.todolist.tasklist.task.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,5 +18,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findByTaskList(TaskList taskList);
 
+    @Modifying
+    @Query("delete from Task t where t.id = ?1")
+    void delete(Long entityId);
 
 }

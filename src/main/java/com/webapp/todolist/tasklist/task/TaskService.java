@@ -7,6 +7,7 @@ import com.webapp.todolist.tasklist.TaskListRepository;
 import com.webapp.todolist.tasklist.TaskListService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -15,12 +16,10 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskListRepository taskListRepository;
 
-
-    public TaskList deleteTask(Long taskId) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new ApiRequestException("Could not find that task"));
-        taskRepository.delete(task);
-        return task.getTaskList();
+    @Transactional
+    public void deleteTask(Long taskId) {
+        taskRepository.delete(taskId);
+        return;
     }
 
     public TaskList editTask(String name, String desc, Long id) {
@@ -30,16 +29,17 @@ public class TaskService {
         task.setDescription(desc);
         task.setName(name);
         taskRepository.save(task);
-
         return task.getTaskList();
     }
 
     public TaskList createTask(String name, String desc, Long listId) {
-
-        TaskList taskList = taskListRepository.findById(listId)
-                .orElseThrow(() -> new ApiRequestException("that list could not be found "));
-        Task task = new Task(name, desc, taskList);
+        Task task = new Task();
+        task.setName(name);
+        task.setDescription(desc);
+        task.setTaskList(taskListRepository.findById(listId)
+                .orElseThrow(() -> new ApiRequestException("that list could not be found")));
         taskRepository.save(task);
-        return taskList;
+//        System.out.println(task);
+        return taskListRepository.findById(listId).orElseThrow(() -> new ApiRequestException("that list could not be found"));
     }
 }

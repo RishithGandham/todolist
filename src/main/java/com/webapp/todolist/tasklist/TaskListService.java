@@ -24,7 +24,7 @@ public class TaskListService {
         newList.setAppUserDetails(appUserDetails);
         newList.setDueDate(date);
         newList.setDescription(description);
-        newList.taskList.add(new Task("Add Your First Task To This List!", "", newList));
+        newList.taskList.add(new Task("Add Your First Task To This List!", "Dummy Task", newList));
         return tlr.save(newList);
 
     }
@@ -45,7 +45,8 @@ public class TaskListService {
     }
 
     public List<TaskList> findByAppUser(AppUserDetails appUserDetails) {
-        List<TaskList> list = tlr.findByAppUserDetails(appUserDetails);
+        List<TaskList> list = tlr.findByAppUserDetails(appUserDetails)
+                .orElseThrow(() -> new ApiRequestException("User not found to edit list"));
         return list;
     }
 

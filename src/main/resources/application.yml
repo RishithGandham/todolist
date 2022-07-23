@@ -7,13 +7,13 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     password: password
-    url: jdbc:mysql://localhost:3306/todolist
+    url: jdbc:mysql://localhost:3306/todolist?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false
     username: root
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     generate-ddl: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -23,7 +23,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: todolist.app.2022@gmail.com
-    password: t0d0l!st
+    password: qevdpphfieybkmef
 
     properties:
       mail:

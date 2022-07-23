@@ -19,7 +19,7 @@ public interface TaskListRepository extends JpaRepository<TaskList, Long> {
 
     Optional<TaskList> deleteListById(Long id);
 
-    List<TaskList> findByAppUserDetails(AppUserDetails appUserDetails);
+    Optional<List<TaskList>> findByAppUserDetails(AppUserDetails appUserDetails);
 
 
     @Transactional
