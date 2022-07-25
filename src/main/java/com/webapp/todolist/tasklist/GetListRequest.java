@@ -1,14 +1,11 @@
 package com.webapp.todolist.tasklist;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
+@AllArgsConstructor
 @Getter
 @Setter
-@AllArgsConstructor
-public class AllListResponse {
-    private List<TaskList> lists;
+public class GetListRequest {
+    private Long id;
 }

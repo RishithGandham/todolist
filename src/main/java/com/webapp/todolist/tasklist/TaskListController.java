@@ -4,7 +4,6 @@ import com.webapp.todolist.appuser.AppUserDetails;
 import com.webapp.todolist.exceptions.ApiRequestException;
 import com.webapp.todolist.exceptions.ListNotFoundException;
 import com.webapp.todolist.messageresponse.MessageResponse;
-import com.webapp.todolist.tasklist.task.GetListRequest;
 import com.webapp.todolist.tasklist.task.Task;
 import com.webapp.todolist.tasklist.task.TaskRepository;
 import com.webapp.todolist.tasklist.task.TaskService;
